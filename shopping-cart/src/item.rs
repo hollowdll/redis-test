@@ -1,6 +1,6 @@
-use actix_web::{web, Responder, HttpResponse, Result, error};
 use crate::redis::*;
-use serde::{Serialize, Deserialize};
+use actix_web::{error, web, HttpResponse, Responder, Result};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CartItem {
@@ -27,17 +27,22 @@ pub async fn handle_get_items() -> Result<impl Responder> {
     Ok(web::Json(items))
 }
 
-pub async fn handle_set_user_item(req: web::Json<CartItem>) -> Result<impl Responder> {
+pub async fn handle_set_user_item(
+    username: web::Path<String>,
+    req: web::Json<CartItem>,
+) -> Result<impl Responder> {
     let mut conn = get_redis_connection();
-    let _ = set_item(&mut conn, req.into_inner()).map_err(error::ErrorInternalServerError)?;
+    let _ = set_item(&mut conn, username.into_inner(), req.into_inner())
+        .map_err(error::ErrorInternalServerError)?;
     println!("User item set successfully");
 
     Ok(HttpResponse::NoContent())
 }
 
-pub async fn handle_get_user_items() -> Result<impl Responder> {
+pub async fn handle_get_user_items(username: web::Path<String>) -> Result<impl Responder> {
     let mut conn = get_redis_connection();
-    let items = get_items(&mut conn).map_err(error::ErrorInternalServerError)?;
+    let items =
+        get_items(&mut conn, username.into_inner()).map_err(error::ErrorInternalServerError)?;
     println!("User items got successfully");
 
     Ok(web::Json(items))
