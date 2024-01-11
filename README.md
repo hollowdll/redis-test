@@ -14,6 +14,12 @@ Built with [Actix Web](https://actix.rs/) framework.
 
 Each request to Redis creates a new connection. Keep this in mind when using.
 
+# Build
+
+You need the Rust compiler to build the application.
+
+Install here https://www.rust-lang.org/tools/install
+
 # Usage
 
 Easy way to spin up a local Redis instance is to use Docker.
